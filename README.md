@@ -2,7 +2,9 @@
 
 Registers each deploy with [DeployAngel](https://www.deployangel.com) and waits
 for production to clear it. The verdict, failing findings, and new exceptions go
-on the job's summary page, and a failed release fails the step.
+on the job's summary page, and a failed release fails the step. While a release
+isn't cleared yet, the summary also lists what to exercise against production
+so it clears sooner (`deployangel plan` has the details).
 
 DeployAngel verifies a release from your app's own production telemetry, so
 this step goes **after** the deploy, in the job that deploys. There's nothing
