@@ -23,15 +23,19 @@ jobs:
 
 ## Setup
 
-1. Add the [deployangel gem](https://rubygems.org/gems/deployangel) to your app
-   and deploy it, so DeployAngel gets production telemetry.
+1. Add the DeployAngel agent to your app and deploy it, so DeployAngel gets
+   production telemetry: the [deployangel gem](https://github.com/DeployAngel/deployangel-ruby)
+   for Rails, or the [deployangel package](https://github.com/DeployAngel/deployangel-python)
+   for Django, FastAPI, and Flask.
 2. In DeployAngel, open the app's Settings, create a **CI deploys** token, and
    save it as the repository secret `DEPLOYANGEL_API_TOKEN`.
 3. Add the step above after your deploy step.
 
-The action needs Ruby 3.1 or later on the runner. GitHub's Ubuntu runners have
-it; elsewhere, add `ruby/setup-ruby` first. It installs the gem's command-line
-tool into its own folder, so your app's bundle isn't touched.
+The action runs DeployAngel's command-line tool, which comes with the Ruby gem,
+so it needs Ruby 3.1 or later on the runner, for Python apps too. GitHub's
+Ubuntu runners have it; elsewhere, add `ruby/setup-ruby` first. The tool is
+installed into its own folder and doesn't need Rails or your app, so a Python
+project needs nothing else, and a Rails app's bundle isn't touched.
 
 ## What fails the step
 
@@ -60,7 +64,7 @@ doesn't roll anything back. Use the outputs to do that yourself.
 | `register` | `true` | Register the deploy first. Set to `false` if something else registers it, such as a Kamal hook or Heroku. |
 | `commit` | the workflow's commit | The deployed commit. |
 | `version` | `run-<number>` | A label for the release, such as a tag. |
-| `gem-version` | `>= 0.1.11` | Which version of the deployangel gem to run. |
+| `gem-version` | `>= 0.1.11` | Which version of the deployangel gem (the command-line tool) to run, whatever language your app is in. |
 
 Waiting holds the runner for the whole wait, and private repositories pay for
 those minutes. `wait: initial` keeps that to about 15 minutes.
