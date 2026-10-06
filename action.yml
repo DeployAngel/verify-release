@@ -1,0 +1,74 @@
+name: DeployAngel release verification
+description: Register a deploy with DeployAngel and wait for production to clear it, then put the verdict on the job's summary.
+author: DeployAngel
+
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  api-token:
+    description: A DeployAngel "CI deploys" token. Store it as a secret.
+    required: true
+  register:
+    description: Register the deploy first. Set to false if something else already registers it, such as a Kamal hook.
+    default: "true"
+  wait:
+    description: >
+      How long to wait. "initial" returns at the first check, 15 minutes after the release's first telemetry.
+      "verdict" waits until the release is cleared, fails, or ends not cleared. "closed" also waits out scheduled
+      jobs that weren't due yet (up to 8 days). "none" only registers.
+    default: initial
+  timeout:
+    description: Longest wait, in seconds or with m or h (e.g. 30m). Running out is a warning, not a failure.
+    default: 30m
+  fail-on-inconclusive:
+    description: >
+      Fail the step when the release ends not cleared, for example because it never reported. Releases in the
+      app's first day of telemetry, and releases a newer one replaced, never fail the step.
+    default: "true"
+  commit:
+    description: The deployed commit. Defaults to the workflow's commit.
+    required: false
+  version:
+    description: A label for the release, such as a tag. Defaults to the run number (run-123).
+    required: false
+  gem-version:
+    description: Which deployangel gem to run.
+    default: ">= 0.1.11"
+
+outputs:
+  deployment-id:
+    description: The DeployAngel deployment's ID.
+    value: ${{ steps.run.outputs.deployment-id }}
+  verdict:
+    description: verified, failed, or inconclusive; empty while the release is still being verified.
+    value: ${{ steps.run.outputs.verdict }}
+  verdict-reason:
+    description: Why the release got its verdict, such as warm_up or no_release_telemetry.
+    value: ${{ steps.run.outputs.verdict-reason }}
+  state:
+    description: The verification's state, such as observing, watching, or closed.
+    value: ${{ steps.run.outputs.state }}
+  dashboard-url:
+    description: The release's page in DeployAngel.
+    value: ${{ steps.run.outputs.dashboard-url }}
+  exit-code:
+    description: The exit code of `deployangel verify` (see the CLI reference).
+    value: ${{ steps.run.outputs.exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      run: '"$GITHUB_ACTION_PATH/run.sh"'
+      env:
+        DEPLOYANGEL_API_TOKEN: ${{ inputs.api-token }}
+        INPUT_REGISTER: ${{ inputs.register }}
+        INPUT_WAIT: ${{ inputs.wait }}
+        INPUT_TIMEOUT: ${{ inputs.timeout }}
+        INPUT_FAIL_ON_INCONCLUSIVE: ${{ inputs.fail-on-inconclusive }}
+        INPUT_COMMIT: ${{ inputs.commit }}
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_GEM_VERSION: ${{ inputs.gem-version }}
