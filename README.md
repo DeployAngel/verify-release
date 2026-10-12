@@ -69,7 +69,10 @@ doesn't roll anything back. Use the outputs to do that yourself.
 | `gem-version` | `>= 0.1.11` | Which version of the deployangel gem (the command-line tool) to run, whatever language your app is in. |
 
 Waiting holds the runner for the whole wait, and private repositories pay for
-those minutes. `wait: initial` keeps that to about 15 minutes.
+those minutes. `wait: initial` keeps that to about 15 minutes. With GitHub
+connected in DeployAngel, each release's verdict also shows on its commit as a
+check, so `wait: none` registers the deploy without holding a runner, at the
+cost of the step never failing on a bad release.
 
 ## Outputs
 
