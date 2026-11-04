@@ -66,6 +66,7 @@ doesn't roll anything back. Use the outputs to do that yourself.
 | `register` | `true` | Register the deploy first. Set to `false` if something else registers it, such as a Kamal hook or Heroku. |
 | `commit` | the workflow's commit | The deployed commit. |
 | `version` | `run-<number>` | A label for the release, such as a tag. |
+| `exercise-url` | (none) | Your app's production URL. When the release isn't cleared at the first check, the step runs `deployangel exercise` against it: the release's plan of read-only requests, sent from the runner and recorded on the release as exercised from your side, then waits again. A quiet app clears on its own deploy this way instead of waiting for traffic. Routes that change data are never sent. |
 | `gem-version` | `>= 0.1.11` | Which version of the deployangel gem (the command-line tool) to run, whatever language your app is in. |
 
 Waiting holds the runner for the whole wait, and private repositories pay for

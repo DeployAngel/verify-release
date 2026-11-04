@@ -55,4 +55,16 @@ document="$(mktemp)"
 "$deployangel" verify --wait --until="$INPUT_WAIT" --timeout="$INPUT_TIMEOUT" --format=json \
   ${target[@]+"${target[@]}"} >"$document"
 code=$?
+
+# Not cleared at the first check (6: no problems so far; 7: warnings) and a
+# production URL to exercise: send the release's read-only plan from here,
+# which counts as real traffic, then wait again. A quiet app clears on its
+# own deploy this way instead of waiting hours for traffic (spec §16).
+if [ -n "${INPUT_EXERCISE_URL:-}" ] && { [ "$code" = 6 ] || [ "$code" = 7 ]; }; then
+  echo "Not cleared yet; exercising the release's plan against $INPUT_EXERCISE_URL"
+  "$deployangel" exercise --url="$INPUT_EXERCISE_URL" ${target[@]+"${target[@]}"} || echo "::warning title=DeployAngel::Exercising the release didn't finish; waiting on ordinary traffic instead."
+  "$deployangel" verify --wait --until="$INPUT_WAIT" --timeout="$INPUT_TIMEOUT" --format=json \
+    ${target[@]+"${target[@]}"} >"$document"
+  code=$?
+fi
 ruby "$GITHUB_ACTION_PATH/report.rb" "$document" "$code"

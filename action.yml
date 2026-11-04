@@ -33,6 +33,13 @@ inputs:
   version:
     description: A label for the release, such as a tag. Defaults to the run number (run-123).
     required: false
+  exercise-url:
+    description: >
+      The app's production URL. When set and the release isn't cleared at the first check, the step runs
+      `deployangel exercise --url` against it: the release's plan of read-only requests, sent from this runner and
+      recorded on the release as exercised from your side, so a quiet app clears on its own deploy instead of
+      waiting for traffic. Then it waits again, as `wait` says. Never routes that change data.
+    required: false
   gem-version:
     description: Which deployangel gem to run.
     default: ">= 0.1.11"
@@ -72,3 +79,4 @@ runs:
         INPUT_COMMIT: ${{ inputs.commit }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_GEM_VERSION: ${{ inputs.gem-version }}
+        INPUT_EXERCISE_URL: ${{ inputs.exercise-url }}
